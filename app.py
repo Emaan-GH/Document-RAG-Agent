@@ -7,9 +7,9 @@ import pandas as pd
 import streamlit as st
 
 from langchain_community.document_loaders import (
+    Docx2txtLoader,
     PyPDFLoader,
     TextLoader,
-    UnstructuredWordDocumentLoader,
 )
 from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
@@ -112,7 +112,7 @@ def build_vectorstore(file_bytes: bytes, file_name: str, size: int, overlap: int
             loader = PyPDFLoader(tmp_path)
             docs = loader.load()
         elif ext in [".docx", ".doc"]:
-            loader = UnstructuredWordDocumentLoader(tmp_path)
+            loader = Docx2txtLoader(tmp_path)
             docs = loader.load()
         elif ext in [".xlsx", ".xls"]:
             df = pd.read_excel(tmp_path)
