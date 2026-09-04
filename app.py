@@ -3,11 +3,11 @@
 
 import os
 import tempfile
+import docx
 import pandas as pd
 import streamlit as st
 
 from langchain_community.document_loaders import (
-    Docx2txtLoader,
     PyPDFLoader,
     TextLoader,
 )
@@ -112,8 +112,9 @@ def build_vectorstore(file_bytes: bytes, file_name: str, size: int, overlap: int
             loader = PyPDFLoader(tmp_path)
             docs = loader.load()
         elif ext in [".docx", ".doc"]:
-            loader = Docx2txtLoader(tmp_path)
-            docs = loader.load()
+            doc = docx.Document(tmp_path)
+            full_text = "\n".join([p.text for p in doc.paragraphs if p.text])
+            docs = [Document(page_content=full_text, metadata={"source": file_name})]
         elif ext in [".xlsx", ".xls"]:
             df = pd.read_excel(tmp_path)
             content = df.to_string(index=False)
