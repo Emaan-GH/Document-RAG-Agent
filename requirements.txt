@@ -4,8 +4,9 @@ langchain-community
 langchain-core
 langchain-openai
 faiss-cpu
-unstructured>=0.6.7
+unstructured[xlsx]
 python-docx
 openpyxl
 msoffcrypto-tool
 pypdf
+pandas
