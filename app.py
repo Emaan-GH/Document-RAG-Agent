@@ -3,15 +3,16 @@
 
 import os
 import tempfile
+import pandas as pd
 import streamlit as st
 
 from langchain_community.document_loaders import (
     PyPDFLoader,
     TextLoader,
     UnstructuredWordDocumentLoader,
-    UnstructuredExcelLoader,
 )
 from langchain_community.vectorstores import FAISS
+from langchain_core.documents import Document
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
@@ -109,14 +110,17 @@ def build_vectorstore(file_bytes: bytes, file_name: str, size: int, overlap: int
     try:
         if ext == ".pdf":
             loader = PyPDFLoader(tmp_path)
+            docs = loader.load()
         elif ext in [".docx", ".doc"]:
             loader = UnstructuredWordDocumentLoader(tmp_path)
+            docs = loader.load()
         elif ext in [".xlsx", ".xls"]:
-            loader = UnstructuredExcelLoader(tmp_path)
+            df = pd.read_excel(tmp_path)
+            content = df.to_string(index=False)
+            docs = [Document(page_content=content, metadata={"source": file_name})]
         else:
             loader = TextLoader(tmp_path)
-
-        docs = loader.load()
+            docs = loader.load()
     finally:
         os.unlink(tmp_path)
 
